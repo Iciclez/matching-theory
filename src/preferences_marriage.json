@@ -1,0 +1,90 @@
+{
+    "group_1": [
+        {
+            "name": "m1",
+            "preference": [
+                "w1",
+                "w2",
+                "w3",
+                "w4",
+                "w5"
+            ],
+            "capacity": 1
+        },
+        {
+            "name": "m2",
+            "preference": [
+                "w4",
+                "w1",
+                "w3",
+                "w2",
+                "w5"
+            ],
+            "capacity": 1
+        },
+        {
+            "name": "m3",
+            "preference": [
+                "w4",
+                "w1",
+                "w3",
+                "w2",
+                "w5"
+            ],
+            "capacity": 1
+        },
+        {
+            "name": "m4",
+            "preference": [
+                "w2",
+                "w3",
+                "w4",
+                "w1",
+                "w5"
+            ],
+            "capacity": 1
+        }
+    ],
+    "group_2": [
+        {
+            "name": "w1",
+            "preference": [
+                "m3",
+                "m1",
+                "m2",
+                "m4"
+            ],
+            "capacity": 1
+        },
+        {
+            "name": "w2",
+            "preference": [
+                "m2",
+                "m3",
+                "m1",
+                "m4"
+            ],
+            "capacity": 1
+        },
+        {
+            "name": "w3",
+            "preference": [
+                "m2",
+                "m3",
+                "m1",
+                "m4"
+            ],
+            "capacity": 1
+        },
+        {
+            "name": "w4",
+            "preference": [
+                "m1",
+                "m2",
+                "m3",
+                "m4"
+            ],
+            "capacity": 1
+        }
+    ]
+}

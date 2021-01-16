@@ -1,0 +1,72 @@
+{
+    "group_1": [
+        {
+            "name": "d1",
+            "preference": [
+                "h3",
+                "h1",
+                "h2"
+            ],
+            "capacity":1
+        },
+        {
+            "name": "d2",
+            "preference": [
+                "h2",
+                "h1",
+                "h3"
+            ],
+            "capacity":1
+        },
+        {
+            "name": "d3",
+            "preference": [
+                "h1",
+                "h3",
+                "h2"
+            ],
+            "capacity":1
+        },
+        {
+            "name": "d4",
+            "preference": [
+                "h1",
+                "h2",
+                "h3"
+            ],
+            "capacity":1
+        }
+    ],
+    "group_2":[
+        {
+            "name": "h1",
+            "preference": [
+                "d1",
+                "d2",
+                "d3",
+                "d4"
+            ],
+            "capacity":2
+        },
+        {
+            "name": "h2",
+            "preference": [
+                "d1",
+                "d2",
+                "d3",
+                "d4"
+            ],
+            "capacity":1
+        },
+        {
+            "name": "h3",
+            "preference": [
+                "d3",
+                "d1",
+                "d2",
+                "d4"
+            ],
+            "capacity":1
+        }
+    ]
+}
