@@ -1,5 +1,6 @@
 import top_trading_cycle
 
+
 def main():
 
     file_names = ['preferences_marriage.json',
@@ -25,7 +26,8 @@ def main():
                  preferences_hospitals_doctors_solution, preferences_schools_students_solution]
 
     for x in range(len(file_names)):
-        assert(solutions[x] == top_trading_cycle.get_top_trading_cycle(file_names[x]))
+        assert(solutions[x] ==
+               top_trading_cycle.get_top_trading_cycle(file_names[x]))
 
     print('all tests passed')
 

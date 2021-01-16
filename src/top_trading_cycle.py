@@ -16,4 +16,3 @@ def get_top_trading_cycle(file_name):
         algorithm = top_trading_cycle(json.load(f))
         a, b = algorithm.group_1_optimal(), algorithm.group_2_optimal()
         return a, b
-

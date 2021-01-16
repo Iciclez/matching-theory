@@ -16,4 +16,3 @@ def get_immediate_acceptance(file_name):
         algorithm = immediate_acceptance(json.load(f))
         a, b = algorithm.group_1_optimal(), algorithm.group_2_optimal()
         return a, b
-

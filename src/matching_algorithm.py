@@ -42,15 +42,15 @@ class matching_algorithm:
             self.capacity[x['name']] = x['capacity']
 
     def match(self, a, b, algorithm='deferred', verbose=False):
-        
+
         if algorithm == 'deferred' or algorithm == 'immediate':
             return self.acceptance(a, b, algorithm, verbose)
 
         if algorithm == 'top_trading_cycle':
             return self.top_trading_cycle(a, b, verbose)
 
-        raise 'no such algorithm'        
-    
+        raise 'no such algorithm'
+
     def acceptance(self, a, b, algorithm='deferred', verbose=False):
         matching = dict()
 
@@ -65,7 +65,8 @@ class matching_algorithm:
             print(matching)
 
         while True:
-            unmatched = list(filter(lambda x: len(x[1]) == 0, matching.items()))
+            unmatched = list(
+                filter(lambda x: len(x[1]) == 0, matching.items()))
             # while one 'group_b' is unmatched and hasn't been proposed to by every one in'group_a'
             if not (len(unmatched) > 0 and unmatched[0][0] in list(itertools.chain.from_iterable(a.values()))):
                 break
@@ -100,7 +101,7 @@ class matching_algorithm:
             print('Initial', (a, b), end='\n\n')
 
         while len(a) > 0 and len(b) > 0:
-                
+
             for x in a.keys():
                 nodes.append(singlylinkedlistnode(x, a[x].pop(0)))
 
@@ -108,7 +109,7 @@ class matching_algorithm:
                 nodes.append(singlylinkedlistnode(x, b[x].pop(0)))
 
             for x in nodes:
-                select = list(filter(lambda v : v.value == x.tag, nodes))
+                select = list(filter(lambda v: v.value == x.tag, nodes))
                 if len(select) == 1:
                     x.next_node = select.pop(0)
 

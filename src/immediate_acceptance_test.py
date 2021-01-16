@@ -1,5 +1,6 @@
 import immediate_acceptance
 
+
 def main():
     file_names = ['preferences_marriage.json',
                   'preferences_hospitals_doctors.json', 'preferences_schools_students.json']
@@ -25,7 +26,8 @@ def main():
                  preferences_hospitals_doctors_solution, preferences_schools_students_solution]
 
     for x in range(len(file_names)):
-        assert(solutions[x] == immediate_acceptance.get_immediate_acceptance(file_names[x]))
+        assert(solutions[x] == immediate_acceptance.get_immediate_acceptance(
+            file_names[x]))
 
     print('all tests passed')
 
