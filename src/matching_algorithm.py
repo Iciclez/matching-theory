@@ -28,16 +28,16 @@ class singlylinkedlistnode:
 
 
 class matching_algorithm:
-    def __init__(self, preferences):
+    def __init__(self, preferences, group_names):
         self.group_1 = dict()
         self.group_2 = dict()
         self.capacity = dict()
 
-        for x in preferences['group_1']:
+        for x in preferences[group_names[0]]:
             self.group_1[x['name']] = x['preference']
             self.capacity[x['name']] = x['capacity']
 
-        for x in preferences['group_2']:
+        for x in preferences[group_names[1]]:
             self.group_2[x['name']] = x['preference']
             self.capacity[x['name']] = x['capacity']
 

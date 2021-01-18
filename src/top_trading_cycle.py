@@ -13,6 +13,6 @@ class top_trading_cycle(matching_algorithm):
 
 def get_top_trading_cycle(file_name):
     with open(file_name) as f:
-        algorithm = top_trading_cycle(json.load(f))
+        algorithm = top_trading_cycle(json.load(f), ('group_1', 'group_2'))
         a, b = algorithm.group_1_optimal(), algorithm.group_2_optimal()
         return a, b

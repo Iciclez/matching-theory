@@ -13,6 +13,6 @@ class deferred_acceptance(matching_algorithm):
 
 def get_deferred_acceptance(file_name):
     with open(file_name) as f:
-        algorithm = deferred_acceptance(json.load(f))
+        algorithm = deferred_acceptance(json.load(f), ('group_1', 'group_2'))
         a, b = algorithm.group_1_optimal(), algorithm.group_2_optimal()
         return a, b
