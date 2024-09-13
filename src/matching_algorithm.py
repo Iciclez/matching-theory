@@ -1,164 +1,145 @@
+import collections
+import copy
 import itertools
-
-
-class singlylinkedlistnode:
-    def __init__(self, value=None, tag=None, next_node=None):
-        self.value = value
-        self.tag = tag
-        self.next_node = next_node
-
-    def get_cycle(self):
-        visited = set()
-        cycle = list()
-
-        # set current node as head
-        node = self
-
-        while node:
-            if node in visited:
-                while cycle[0][0] != node.value:
-                    cycle.pop(0)
-                return dict(cycle)
-
-            visited.add(node)
-            cycle.append((node.value, node.next_node))
-            node = node.next_node
-
-        return None
 
 
 class matching_algorithm:
     def __init__(self, preferences, group_names):
         self.group_1 = dict()
         self.group_2 = dict()
-        self.capacity = dict()
+        self.capacity = collections.defaultdict(int)
 
-        for x in preferences[group_names[0]]:
-            self.group_1[x['name']] = x['preference']
-            self.capacity[x['name']] = x['capacity']
+        for entity in preferences[group_names[0]]:
+            self.group_1[entity['name']] = entity['preference']
+            self.capacity[entity['name']] = entity['capacity']
 
-        for x in preferences[group_names[1]]:
-            self.group_2[x['name']] = x['preference']
-            self.capacity[x['name']] = x['capacity']
+        for entity in preferences[group_names[1]]:
+            self.group_2[entity['name']] = entity['preference']
+            self.capacity[entity['name']] = entity['capacity']
 
     def match(self, a, b, algorithm='deferred', verbose=False):
-
-        if algorithm == 'deferred' or algorithm == 'immediate':
-            return self.acceptance(a, b, algorithm, verbose)
-
-        if algorithm == 'top_trading_cycle':
-            return self.top_trading_cycle(a, b, verbose)
+        match algorithm:
+            case 'deferred' | 'immediate':
+               return self.acceptance(a, b, algorithm, verbose)
+            case 'top_trading_cycle':
+                return self.top_trading_cycle(a, b, verbose)
 
         raise 'no such algorithm'
 
     def acceptance(self, a, b, algorithm='deferred', verbose=False):
-        matching = dict()
+        res = {k:list() for k in b.keys()}
+        adq = {k:collections.deque(v) for k,v in a.items()}
 
-        for x in b.keys():
-            matching[x] = list()
-
-        for x in a.keys():
-            for _ in range(self.capacity[x]):
-                matching[a[x].pop(0)].append(x)
+        # initial proposal
+        for k in adq.keys():
+            for _ in range(self.capacity[k]):
+                res[adq[k].popleft()].append(k)
 
         if verbose:
-            print(matching)
+            print(res)
 
         while True:
-            unmatched = list(
-                filter(lambda x: len(x[1]) == 0, matching.items()))
-            # while one 'group_b' is unmatched and hasn't been proposed to by every one in'group_a'
-            if not (len(unmatched) > 0 and unmatched[0][0] in list(itertools.chain.from_iterable(a.values()))):
+            unpaired = list(map(lambda kv: kv[0], filter(lambda kv: len(kv[1]) == 0, res.items())))
+
+            if len(unpaired) == 0:
                 break
 
-            for x in matching.keys():
-                while len(matching[x]) > self.capacity[x]:
+            # itertools.chain.from_iterable flattens nested lists
+            # while one 'group_b' is unpaired and hasn't been proposed to by every one in 'group_a'
+            currently_proposed = set(itertools.chain.from_iterable(adq.values()))
+            if not any(map(lambda k: k in currently_proposed, unpaired)):
+                break
+
+            for k in res.keys():
+                while len(res[k]) > self.capacity[k]:
                     # sort based on preference
-                    matching[x] = [name for name in b[x]
-                                   if name in matching[x]]
-                    name = matching[x].pop()
-                    request_from = a[name].pop(0)
+                    res[k].sort(key=lambda key:b[k].index(key))
+                    
+                    request_to = res[k].pop()
+                    request_from = adq[request_to].popleft()
 
                     if algorithm == 'immediate':
-                        while self.capacity[request_from] == len(matching[request_from]):
-                            request_from = a[name].pop(0)
+                        while self.capacity[request_from] == len(res[request_from]):
+                            request_from = adq[request_to].popleft()
 
-                    matching[request_from].append(name)
+                    res[request_from].append(request_to)
                     if verbose:
-                        print(matching)
+                        print(res)
 
-        return matching
+        return res
 
     def top_trading_cycle(self, a, b, verbose=False):
 
-        matching = dict()
-        nodes = list()
-
-        for x in a.keys():
-            matching[x] = list()
-
         if verbose:
             print('Initial', (a, b), end='\n\n')
+ 
+        def get_cycle(prefs):
+            # get the first (random) key and start looking for cycles there
+            dq = collections.deque([(list(prefs.keys())[0], collections.deque([]))])
+            visited = set()
+
+            while dq:
+                current_node, current_path = dq.popleft()
+
+                # cycle found
+                if current_node in visited:
+                    cycles_removed = 0
+                    # removes head of current_path if they do not contribute to the found cycle
+                    while current_path[0] != current_node:
+                        current_path.popleft()
+                        cycles_removed += 1
+                    return current_path, cycles_removed
+
+                visited.add(current_node)
+                
+                # get the first preference of current_node
+                # e.g. m1: [w1], w1: [m2]
+                # when m1 is current_node, w1 is appended
+                # when w1 is current_node, m2 is appended
+                dq.append((prefs[current_node][0], current_path + collections.deque([current_node])))
+
+            return None, None
+        
+        # e.g. [m1, w1, m3, w4] => {m1: w1, m3: w4}
+        def cycle_to_pairs(cycle, cycles_removed):
+            res = collections.defaultdict(list)
+            while len(cycle) > 0:
+                a, b = cycle.popleft(), cycle.popleft()
+                if cycles_removed % 2 == 0:
+                    res[a] = [b]
+                else:
+                    res[b] = [a]
+            return res
+
+        def join_prefs(a, b):
+            for k in b.keys():
+                a[k] += b[k]
+            return a
+
+        res = collections.defaultdict(list)
+        capacities = copy.deepcopy(self.capacity)
 
         while len(a) > 0 and len(b) > 0:
-
-            for x in a.keys():
-                nodes.append(singlylinkedlistnode(x, a[x].pop(0)))
-
-            for x in b.keys():
-                nodes.append(singlylinkedlistnode(x, b[x].pop(0)))
-
-            for x in nodes:
-                select = list(filter(lambda v: v.value == x.tag, nodes))
-                if len(select) == 1:
-                    x.next_node = select.pop(0)
-
-            for x in range(len(nodes)):
-                cycle = nodes[x].get_cycle()
-                if cycle != None:
-                    if verbose:
-                        print('Cycle')
-                    for k, v in cycle.items():
-                        if verbose:
-                            print((k, v.value))
-                        if k in matching:
-                            matching[k].append(v.value)
-
-                    nodes = list(
-                        filter(lambda v: v.value not in cycle.keys(), nodes))
-                    break
-
-            # add unused nodes (that are not part of the cycle) back
-            for x in nodes:
-                if x.value in a.keys():
-                    a[x.value].insert(0, x.tag)
-                    continue
-                if x.value in b.keys():
-                    b[x.value].insert(0, x.tag)
-                    continue
-
-            # purge nodes that are already at capacity
-            for k, v in matching.items():
-                if len(v) == self.capacity[k]:
-                    a.pop(k, None)
-                    for _, n in b.items():
-                        if k in n:
-                            n.remove(k)
-
-            # flatten matching values
-            l = list(itertools.chain.from_iterable(
-                matching.values()))
-            for k in list(b.keys()):
-                if len(list(filter(lambda x: x == k, l))) == self.capacity[k]:
-                    b.pop(k, None)
-                    for _, n in a.items():
-                        if k in n:
-                            n.remove(k)
-
-            nodes.clear()
+            cycle, cycles_removed = get_cycle(a | b)
+            assert len(cycle) % 2 == 0, 'Cycles should come in pairs.'
 
             if verbose:
-                print('Remaining', (a, b))
-                print(matching, end='\n\n')
+                print('Cycle found', cycle)
 
-        return matching
+            visited = set(cycle)
+            res = join_prefs(res, cycle_to_pairs(cycle, cycles_removed))
+
+            for node in visited:
+                capacities[node] -= 1
+
+            # cycles are now visited, so we need to remove them if their capacities hit 0
+            a = {k:list(filter(lambda pref_item: capacities[pref_item] > 0, v)) for k,v in a.items() if capacities[k] > 0}
+            b = {k:list(filter(lambda pref_item: capacities[pref_item] > 0, v)) for k,v in b.items() if capacities[k] > 0}
+
+            if verbose:
+                print('Remaining', (a, b)) 
+
+        if verbose:
+            print('\nResults:', res, end='\n\n')
+
+        return res
